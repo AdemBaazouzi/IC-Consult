@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><title>Downloading...</title></head>
+<body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#666">
+<p id="msg">Preparing download...</p>
+<script>
+window.addEventListener('message', function(e) {
+    try {
+        if (!e.data || e.data.type !== 'download') return;
+        var blob = new Blob([e.data.buffer], { type: e.data.mime || 'application/pdf' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = e.data.name || 'document.pdf';
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById('msg').textContent = 'Download started! You can close this tab.';
+        setTimeout(function() { window.close(); }, 1500);
+    } catch(err) {
+        document.getElementById('msg').textContent = 'Error: ' + err.message;
+    }
+});
+// Signal ready to opener
+if (window.opener) window.opener.postMessage({ type: 'helper-ready' }, '*');
+</script>
+</body></html>
